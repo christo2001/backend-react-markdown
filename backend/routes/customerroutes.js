@@ -55,7 +55,10 @@ router.post("/registered",async(req,res)=>{
               
             // This would be the text of email body 
             text: `Hi there, you have recently visited our website and entered your email. 
-            Please follow the given link to verify your email: ${verify}. Thanks` 
+            Please follow the given link to verify your email:
+            ${verify}
+
+            Thanks` 
               
         }; 
           
@@ -158,8 +161,9 @@ router.post("/forgetpassword", async (req, res) => {
       subject: 'Sending Forget Password Email using Node.js',
         
       // This would be the text of email body 
-      text: `Hi there, you have recently visited our website and entered your email. 
-      Please follow the given link to verify your email: ${otp}. Thanks` 
+      text: `your OTP
+       ${otp}. 
+       Thanks` 
         
   }; 
     
