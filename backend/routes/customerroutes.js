@@ -35,7 +35,7 @@ router.post("/registered",async(req,res)=>{
         //generate json web token
 
         const token = generatetoken(Customer._id);
-        const verify = `http://localhost:5173/api/user/verify `
+        const verify = `http://localhost:5173/api/user/verify/`
 
         //sending activation token via mail
 
@@ -110,20 +110,21 @@ router.get('/verify/:token', async (req, res) => {
 router.post("/login",async(req,res)=>{
     try {
         let Customer = await getuserbyemail(req)
+        const token = generatetoken(Customer._id);
         if(!Customer){
             return res.status(400).json({error:"user not exist"})
         }
         if (!Customer.isActive) {
-            return res.status(401).send('Account not activated. Check your email for activation instructions.');
-          }
-    
+          return res.status(401).json({ error: 'Account not activated. Check your email for activation instructions.' });
+        }
+        
         const loginpassword = await bcrypt.compare(req.body.password, Customer.password);
     
         if(!loginpassword){
             res.status(404).json({message:"incorrect password"})
         }
     
-        res.json({message:"login successfully"})
+        res.json({message:"login successfully",token})
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal error' });

@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
 import { request } from "http";
 
+
+
 export function getuserbyemail(request){
     return customermodel.findOne({
         email:request.body.email
@@ -32,3 +34,4 @@ export async function verifyotp(request) {
   // Query the database for a user with the provided OTP
   return await customermodel.findOne({ otp: userEnteredOTP });
 }
+
