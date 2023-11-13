@@ -5,17 +5,21 @@ import crypto from "crypto";
 import { request } from "http";
 
 
-
+//this function help us to find the email is already registered or not 
 export function getuserbyemail(request){
     return customermodel.findOne({
         email:request.body.email
     })
 }
 
+//this function generate json web token 
 export function generatetoken(id) {
-    return jwt.sign({ id }, process.env.SECRET_KEY);
-  }
+  const expiresIn = '1h'; // You can specify the expiration time as needed (e.g., '1h' for 1 hour)
+  const token = jwt.sign({ id }, process.env.SECRET_KEY, { expiresIn });
+  return token;
+}
 
+//this function generate unique activation token 
 export function generateUniqueActivationToken() {
     const randomUuid = uuidv4();
     const hash = crypto.createHash('sha256');
@@ -23,6 +27,7 @@ export function generateUniqueActivationToken() {
     return activationToken;
   }
 
+//this function generate otp
 export function generateOTP() {
   return Math.floor(1000 + Math.random() * 9000);
 }

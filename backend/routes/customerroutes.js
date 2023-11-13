@@ -12,33 +12,35 @@ const router = express.Router();
 router.post("/registered",async(req,res)=>{
     try {
         //check user already exist
-
+        // check controller folder to get to know about getuserbyemail
         let Customer = await getuserbyemail(req)
         if(Customer){
             return res.status(400).json({error:"user already exist"})
         }
 
-        // generate hashed password
 
+        // generate hashed password
         const salt = await bcrypt.genSalt(10)
         const hashedpassword = await bcrypt.hash(req.body.password,salt)
 
+
         //generate activation token (check controllers folder)
         const uniqueActivationToken = generateUniqueActivationToken();
-
         Customer = await new customermodel({
             ...req.body,
             password:hashedpassword,
             uniqueActivationToken
         }).save();
 
-        //generate json web token
 
+
+        //generate json web token (check controllers folder)
         const token = generatetoken(Customer._id);
         const verify = `http://localhost:5173/api/user/verify/`
 
-        //sending activation token via mail
 
+
+        //sending activation token via mail
         var transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -112,8 +114,8 @@ router.get('/verify/:token', async (req, res) => {
 //login
 router.post("/login",async(req,res)=>{
     try {
-        let Customer = await getuserbyemail(req)
-        const token = generatetoken(Customer._id);
+        let Customer = await getuserbyemail(req)// check controller folder to get to know about getuserbyemail
+        const token = generatetoken(Customer._id);// check controller folder to get to know about generatetoken
         if(!Customer){
             return res.status(400).json({error:"user not exist"})
         }
@@ -138,13 +140,13 @@ router.post("/login",async(req,res)=>{
 //-------------------------------------------------------------------------------------------------
 //forget password
 router.post("/forgetpassword", async (req, res) => {
-    let Customer = await getuserbyemail(req);
+    let Customer = await getuserbyemail(req);// check controller folder to get to know about getuserbyemail
   
     if (!Customer) {
       return res.status(400).json({ error: "User not exist" });
     }
   
-    const otp = generateOTP();
+    const otp = generateOTP();// check controller folder to get to know about  generateOTP
 
     var transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -161,9 +163,7 @@ router.post("/forgetpassword", async (req, res) => {
       subject: 'Sending Forget Password Email using Node.js',
         
       // This would be the text of email body 
-      text: `your OTP
-       ${otp}. 
-       Thanks` 
+      text: `your OTP  ${otp}  Thanks.` 
         
   }; 
     
