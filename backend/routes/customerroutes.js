@@ -36,7 +36,7 @@ router.post("/registered",async(req,res)=>{
 
         //generate json web token (check controllers folder)
         const token = generatetoken(Customer._id);
-        const verify = `http://localhost:5173/api/user/verify/`
+        const verify = `https://655240562d2df70090263c55--relaxed-faun-da5d5a.netlify.app/api/user/verify/`
 
 
 
