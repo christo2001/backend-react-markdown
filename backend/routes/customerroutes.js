@@ -53,7 +53,7 @@ router.post("/registered",async(req,res)=>{
           
             from: 'otismelbourn22@gmail.com',
             to: req.body.email,
-            subject: 'Sending Forget Password Email using Node.js',
+            subject: 'Activation of your Account',
               
             // This would be the text of email body 
             text: `Hi there, you have recently visited our website and entered your email. 
@@ -160,7 +160,7 @@ router.post("/forgetpassword", async (req, res) => {
     
       from: 'otismelbourn22@gmail.com',
       to: req.body.email,
-      subject: 'Sending Forget Password Email using Node.js',
+      subject: 'Forget Password Email',
         
       // This would be the text of email body 
       text: `your OTP  ${otp}  Thanks.` 
