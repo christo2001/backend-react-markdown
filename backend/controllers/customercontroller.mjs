@@ -1,4 +1,5 @@
 import { customermodel } from "../models/customermodel.mjs"
+import { usermodel } from "../models/verify.js";
 import jwt  from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
@@ -26,6 +27,29 @@ export function generateUniqueActivationToken() {
     const activationToken = hash.update(randomUuid).digest('hex');
     return activationToken;
   }
+
+  export async function insertverifyuser(token) {
+    try {
+        const userverify = await usermodel.findOne({ token: token });
+
+        if (userverify) {
+            const newuser = new customermodel({
+                username: userverify.username,
+                email: userverify.email,
+                password: userverify.password,
+                token:userverify.token
+            });
+
+            await newuser.save();
+            await usermodel.deleteOne({ token: token });
+
+        } 
+    } catch (error) {
+        console.error(error);
+        return `<p>Error occurred</p><h4>Registration failed</h4>`;
+    }
+}
+
 
 //this function generate otp
 export function generateOTP() {

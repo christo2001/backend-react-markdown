@@ -22,6 +22,9 @@ const customerschema = new mongoose.Schema({
         type: Boolean,
         default: false,
       },
+      token: {
+        type: String,
+    },
       activationToken: {
         type: String,
       },

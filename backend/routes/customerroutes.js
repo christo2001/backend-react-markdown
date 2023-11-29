@@ -1,7 +1,8 @@
 import express from "express";
-import { generatetoken, getuserbyemail,generateUniqueActivationToken,generateOTP, verifyotp } from "../controllers/customercontroller.mjs";
+import { generatetoken, getuserbyemail,generateUniqueActivationToken,generateOTP, verifyotp,insertverifyuser } from "../controllers/customercontroller.mjs";
 import bcrypt from "bcrypt"
 import { customermodel } from "../models/customermodel.mjs"
+import { usermodel } from "../models/verify.js";
 import nodemailer from "nodemailer"
 
 
@@ -25,18 +26,14 @@ router.post("/registered",async(req,res)=>{
 
 
         //generate activation token (check controllers folder)
-        const uniqueActivationToken = generateUniqueActivationToken();
-        Customer = await new customermodel({
+        const token = generatetoken(req.body.email);
+        Customer = await new usermodel({
             ...req.body,
             password:hashedpassword,
-            uniqueActivationToken
+            token 
         }).save();
 
-
-
-        //generate json web token (check controllers folder)
-        const token = generatetoken(Customer._id);
-        const verify = `https://655240562d2df70090263c55--relaxed-faun-da5d5a.netlify.app/api/user/verify/`
+        const verify = `http://localhost:5173/api/user/verify`
 
 
 
@@ -87,26 +84,23 @@ router.post("/registered",async(req,res)=>{
 //verifying mail 
 
 router.get('/verify/:token', async (req, res) => {
-    const { token } = req.params;
+  try {
+    const response = await insertverifyuser(req.params.token);
+    const user = await customermodel.findOne({ verificationToken: req.params.token });
 
-    try {
-        // Find the user with the provided activation token
-        const user = await customermodel.findOne({ uniqueActivationToken: token });
-
-        if (!user) {
-            return res.status(404).json({ error: 'Invalid activation token ' });
-        }
-
-        // Activate the user's account
-        user.isActive = true;
-        await user.save();
-
-        res.status(200).json({ message: 'Account activated successfully' });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal error' });
+    if (user) {
+      user.isActive = true;
+      await user.save();
+      res.status(200).json({ message: response });
+    } else {
+      res.status(400).json({ error: "Invalid or already verified token" });
     }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 });
+
 
 
 //-------------------------------------------------------------------------------------------------
