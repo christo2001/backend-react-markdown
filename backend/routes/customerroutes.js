@@ -33,7 +33,7 @@ router.post("/registered",async(req,res)=>{
             token 
         }).save();
 
-        const verify = `https://capstone-t11c.onrender.com/api/user/verify`
+        const verify = `http://localhost:5173/api/user/verify/`
 
 
 
