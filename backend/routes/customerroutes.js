@@ -33,7 +33,7 @@ router.post("/registered",async(req,res)=>{
             token 
         }).save();
 
-        const verify = `https://65674d59b8fa45240a37abc0--relaxed-faun-da5d5a.netlify.app/api/user/verify`
+        const verify = `http://localhost:5173/api/user/verify`
 
 
 
@@ -81,6 +81,62 @@ router.post("/registered",async(req,res)=>{
 })
 
 //--------------------------------------------------------------------------------------------
+// Add this new endpoint to your existing router
+router.post("/resendactivation", async (req, res) => {
+  try {
+    const existingUser = await getuserbyemail(req.body.email);
+
+    if (!existingUser) {
+      return res.status(400).json({ error: "User not found" });
+    }
+
+    // Generate a new activation token
+    const newToken = generatetoken(req.body.email);
+
+    // Update the existing user with the new token
+    existingUser.token = newToken;
+    await existingUser.save();
+
+    // Resend activation email
+    const verify = `https://65674d59b8fa45240a37abc0--relaxed-faun-da5d5a.netlify.app/api/user/verify/${newToken}`;
+
+    // Sending activation token via mail
+    var transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'otismelbourn22@gmail.com',
+        pass: 'xpur qesj lfvz fwhe'
+      }
+    });
+
+    const mailConfigurations = {
+      from: 'otismelbourn22@gmail.com',
+      to: req.body.email,
+      subject: 'Activation of your Account',
+      text: `Hi there, you have requested a new activation link. 
+            Please follow the given link to verify your email:
+            ${verify}
+
+            Thanks`
+    };
+
+    transporter.sendMail(mailConfigurations, function (error, info) {
+      if (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Email could not be sent' });
+      }
+      console.log('Email Sent Successfully');
+      console.log(info);
+
+      res.status(200).json({ message: "Activation email resent successfully", token: newToken });
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal error" });
+  }
+});
+
+
 //verifying mail 
 
 router.get('/verify/:token', async (req, res) => {
