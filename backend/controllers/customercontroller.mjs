@@ -28,6 +28,7 @@ export function generateUniqueActivationToken() {
     return activationToken;
   }
 
+//this function checks the token and if tokens matches ,remove the data from the usermodel  and move our data to customermodel
   export async function insertverifyuser(token) {
     try {
         const userverify = await usermodel.findOne({ token: token });
