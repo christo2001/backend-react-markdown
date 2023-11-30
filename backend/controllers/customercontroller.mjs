@@ -7,11 +7,12 @@ import { request } from "http";
 
 
 //this function help us to find the email is already registered or not 
-export function getuserbyemail(request){
-    return customermodel.findOne({
-        email:request.body.email
-    })
+export function getuserbyemail(email) {
+  return usermodel.findOne({
+      email: email
+  });
 }
+
 
 //this function generate json web token 
 export function generatetoken(id) {
@@ -41,7 +42,7 @@ export function generateUniqueActivationToken() {
             });
 
             await newuser.save();
-            await usermodel.deleteOne({ token: token });
+            // await usermodel.deleteOne({ token: token });
 
         } 
     } catch (error) {
