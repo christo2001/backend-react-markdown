@@ -42,7 +42,7 @@ export function generateUniqueActivationToken() {
             });
 
             await newuser.save();
-            // await usermodel.deleteOne({ token: token });
+            await usermodel.deleteOne({ token: token });
 
         } 
     } catch (error) {
