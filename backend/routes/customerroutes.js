@@ -14,8 +14,7 @@ router.post("/registered",async(req,res)=>{
     try {
         //check user already exist
         // check controller folder to get to know about getuserbyemail
-        let Customer = await getuserbyemail(req.body.email);
-
+        let Customer = await getuserbyemail(req)
         if(Customer){
             return res.status(400).json({error:"user already exist"})
         }
@@ -34,7 +33,7 @@ router.post("/registered",async(req,res)=>{
             token 
         }).save();
 
-        const verify = `http://localhost:5173/api/user/verify`
+        const verify = `https://65676eb9c8b4903e236dd63b--relaxed-faun-da5d5a.netlify.app/api/user/verify`
 
 
 
@@ -82,7 +81,6 @@ router.post("/registered",async(req,res)=>{
 })
 
 //--------------------------------------------------------------------------------------------
-
 //verifying mail 
 
 router.get('/verify/:token', async (req, res) => {
