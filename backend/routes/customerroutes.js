@@ -152,7 +152,7 @@ router.get('/verify/:token', async (req, res) => {
       await user.save();
       res.status(200).json({ message: response });
     } else {
-      res.status(400).json({ error: "Invalid or already verified token", resendLink: "/resendactivation" });
+      res.status(400).json({ error: "Invalid or already verified token" });
     }
   } catch (error) {
     console.error(error);
