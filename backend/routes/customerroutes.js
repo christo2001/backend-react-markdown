@@ -33,7 +33,7 @@ router.post("/registered",async(req,res)=>{
             token 
         }).save();
 
-        const verify = `https://6571caba142d9d0e25297c2b--relaxed-faun-da5d5a.netlify.app//api/user/verify/`
+        const verify = `https://6571caba142d9d0e25297c2b--relaxed-faun-da5d5a.netlify.app/api/user/verify/`
 
 
 
