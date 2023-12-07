@@ -53,11 +53,11 @@ router.post("/registered",async(req,res)=>{
             subject: 'Activation of your Account',
               
             // This would be the text of email body 
-            text: `Hi there, you have recently visited our website and entered your email. 
-            Please follow the given link to verify your email:
-            ${verify}
-
-            Thanks` 
+            html: `
+            <p>Hi there, you have recently visited our website and entered your email.</p>
+            <p>Please follow the given link to verify your email:</p>
+            <a href="${verify}">${verify}</a>
+            <p>Thanks</p>`, 
               
         }; 
           
