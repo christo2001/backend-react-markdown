@@ -90,7 +90,7 @@ router.get('/verify/:token', async (req, res) => {
     const user = await customermodel.findOne({ verificationToken: req.params.token });
 
     if (user) {
-      user.isActive = true;
+      user.isActive = false;
       await user.save();
       res.status(200).json({ message: response });
     } else {
