@@ -84,24 +84,16 @@ router.post("/registered",async(req,res)=>{
 //--------------------------------------------------------------------------------------------
 //verifying mail 
 
-// Verification route
 router.get('/verify/:token', async (req, res) => {
   try {
-    // Use insertverifyuser function to update user status based on the token
     const response = await insertverifyuser(req.params.token);
-
-    // Find the user by verification token
     const user = await customermodel.findOne({ verificationToken: req.params.token });
 
     if (user) {
-      // Set user as active and save changes
       user.isActive = true;
       await user.save();
-      
-      // Send success response
       res.status(200).json({ message: response });
     } else {
-      // If user not found, or token is invalid or already verified, send error response
       res.status(400).json({ error: "Invalid or already verified token" });
     }
   } catch (error) {
@@ -110,41 +102,35 @@ router.get('/verify/:token', async (req, res) => {
   }
 });
 
-// Login route
-router.post("/login", async (req, res) => {
-  try {
-    // Use getuserbyemail function to retrieve the user
-    let Customer = await getuserbyemail(req);
 
-    if (!Customer) {
-      // If user not found, send an error response
-      return res.status(400).json({ error: "User not exist" });
+
+//-------------------------------------------------------------------------------------------------
+
+//login
+router.post("/login",async(req,res)=>{
+    try {
+        let Customer = await getuserbyemail(req)// check controller folder to get to know about getuserbyemail
+        const token = generatetoken(Customer._id);// check controller folder to get to know about generatetoken
+        if(!Customer){
+            return res.status(400).json({error:"user not exist"})
+        }
+        if (!Customer.isActive) {
+          return res.status(401).json({ error: 'Account not activated. Check your email for activation instructions.' });
+        }
+        
+        const loginpassword = await bcrypt.compare(req.body.password, Customer.password);
+    
+        if(!loginpassword){
+            res.status(404).json({message:"incorrect password"})
+        }
+    
+        res.json({message:"login successfully",token})
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal error' });
     }
 
-    // Check if Customer is not null before accessing its properties
-    if (Customer && !Customer.isActive) {
-      // If user is not active, send an error response
-      return res.status(401).json({ error: 'Account not activated. Check your email for activation instructions.' });
-    }
-
-    // Compare the passwords
-    const loginpassword = await bcrypt.compare(req.body.password, Customer.password);
-
-    if (!loginpassword) {
-      // If password is incorrect, send an error response
-      return res.status(404).json({ message: "Incorrect password" });
-    }
-
-    // Generate token and send a success response
-    const token = generatetoken(Customer._id);
-    res.json({ message: "Login successfully", token });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal error' });
-  }
-});
-
-
+})
 
 //-------------------------------------------------------------------------------------------------
 //forget password
