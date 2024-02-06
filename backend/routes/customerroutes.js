@@ -107,30 +107,32 @@ router.get('/verify/:token', async (req, res) => {
 //-------------------------------------------------------------------------------------------------
 
 //login
-router.post("/login",async(req,res)=>{
-    try {
-        let Customer = await getuserbyemail(req)// check controller folder to get to know about getuserbyemail
-        const token = generatetoken(Customer._id);// check controller folder to get to know about generatetoken
-        if(!Customer){
-            return res.status(400).json({error:"user not exist"})
-        }
-        if (!Customer.isActive) {
-          return res.status(401).json({ error: 'Account not activated. Check your email for activation instructions.' });
-        }
-        
-        const loginpassword = await bcrypt.compare(req.body.password, Customer.password);
-    
-        if(!loginpassword){
-            res.status(404).json({message:"incorrect password"})
-        }
-    
-        res.json({message:"login successfully",token})
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal error' });
-    }
+router.post("/login", async (req, res) => {
+  try {
+      let Customer = await getuserbyemail(req);
+      if (!Customer) {
+          return res.status(400).json({ error: "User not exist" });
+      }
 
-})
+      // Check if Customer is not null before accessing its properties
+      if (Customer && !Customer.isActive) {
+          return res.status(401).json({ error: 'Account not activated. Check your email for activation instructions.' });
+      }
+
+      const loginpassword = await bcrypt.compare(req.body.password, Customer.password);
+
+      if (!loginpassword) {
+          return res.status(404).json({ message: "Incorrect password" });
+      }
+
+      const token = generatetoken(Customer._id);
+      res.json({ message: "Login successfully", token });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal error' });
+  }
+});
+
 
 //-------------------------------------------------------------------------------------------------
 //forget password
