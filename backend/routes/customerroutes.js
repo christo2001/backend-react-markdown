@@ -84,16 +84,24 @@ router.post("/registered",async(req,res)=>{
 //--------------------------------------------------------------------------------------------
 //verifying mail 
 
+// Verification route
 router.get('/verify/:token', async (req, res) => {
   try {
+    // Use insertverifyuser function to update user status based on the token
     const response = await insertverifyuser(req.params.token);
+
+    // Find the user by verification token
     const user = await customermodel.findOne({ verificationToken: req.params.token });
 
     if (user) {
-      user.isActive = false;
+      // Set user as active and save changes
+      user.isActive = true;
       await user.save();
+      
+      // Send success response
       res.status(200).json({ message: response });
     } else {
+      // If user not found, or token is invalid or already verified, send error response
       res.status(400).json({ error: "Invalid or already verified token" });
     }
   } catch (error) {
@@ -102,36 +110,40 @@ router.get('/verify/:token', async (req, res) => {
   }
 });
 
-
-
-//-------------------------------------------------------------------------------------------------
-
-//login
+// Login route
 router.post("/login", async (req, res) => {
   try {
-      let Customer = await getuserbyemail(req);
-      if (!Customer) {
-          return res.status(400).json({ error: "User not exist" });
-      }
+    // Use getuserbyemail function to retrieve the user
+    let Customer = await getuserbyemail(req);
 
-      // Check if Customer is not null before accessing its properties
-      if (Customer && !Customer.isActive) {
-          return res.status(401).json({ error: 'Account not activated. Check your email for activation instructions.' });
-      }
+    if (!Customer) {
+      // If user not found, send an error response
+      return res.status(400).json({ error: "User not exist" });
+    }
 
-      const loginpassword = await bcrypt.compare(req.body.password, Customer.password);
+    // Check if Customer is not null before accessing its properties
+    if (Customer && !Customer.isActive) {
+      // If user is not active, send an error response
+      return res.status(401).json({ error: 'Account not activated. Check your email for activation instructions.' });
+    }
 
-      if (!loginpassword) {
-          return res.status(404).json({ message: "Incorrect password" });
-      }
+    // Compare the passwords
+    const loginpassword = await bcrypt.compare(req.body.password, Customer.password);
 
-      const token = generatetoken(Customer._id);
-      res.json({ message: "Login successfully", token });
+    if (!loginpassword) {
+      // If password is incorrect, send an error response
+      return res.status(404).json({ message: "Incorrect password" });
+    }
+
+    // Generate token and send a success response
+    const token = generatetoken(Customer._id);
+    res.json({ message: "Login successfully", token });
   } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal error' });
+    console.error(error);
+    res.status(500).json({ error: 'Internal error' });
   }
 });
+
 
 
 //-------------------------------------------------------------------------------------------------
