@@ -32,47 +32,9 @@ router.post("/registered",async(req,res)=>{
             password:hashedpassword,
             token 
         }).save();
-
-        const verify = `https://6571caba142d9d0e25297c2b--relaxed-faun-da5d5a.netlify.app/api/user/verify/`
-
-
-
-        //sending activation token via mail
-        var transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-              user: 'otismelbourn22@gmail.com',
-              pass: 'xpur qesj lfvz fwhe'
-            }
-          });  
-          
-        const mailConfigurations = { 
-          
-            from: 'otismelbourn22@gmail.com',
-            to: req.body.email,
-            subject: 'Activation of your Account',
-              
-            // This would be the text of email body 
-            html: `
-    <p>Hi there, you have recently visited our website and entered your email.</p>
-    <p>Please follow the given link to verify your email:</p>
-    <a href="${verify}">click here to activate your account</a>
-    <p>Thanks</p>
-  `,
-              
-        }; 
-          
-        transporter.sendMail(mailConfigurations, function(error, info) {
-            if (error) {
-                console.error(error);
-                return res.status(500).json({ error: 'Email could not be sent' });
-            }
-            console.log('Email Sent Successfully');
-            console.log(info);
-        });
         
         
-        res.status(201).json({message:"successfully logged in",token})
+        res.status(201).json({message:"successfully registered ",token})
 
 
     } catch (error) {
@@ -82,25 +44,7 @@ router.post("/registered",async(req,res)=>{
 })
 
 //--------------------------------------------------------------------------------------------
-//verifying mail 
 
-router.get('/verify/:token', async (req, res) => {
-  try {
-    const response = await insertverifyuser(req.params.token);
-    const user = await customermodel.findOne({ verificationToken: req.params.token });
-
-    if (user) {
-      user.isActive = true;
-      await user.save();
-      res.status(200).json({ message: response });
-    } else {
-      res.status(400).json({ error: "Invalid or already verified token" });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
 
 
 
@@ -113,9 +57,6 @@ router.post("/login",async(req,res)=>{
         const token = generatetoken(Customer._id);// check controller folder to get to know about generatetoken
         if(!Customer){
             return res.status(400).json({error:"user not exist"})
-        }
-        if (!Customer.isActive) {
-          return res.status(401).json({ error: 'Account not activated. Check your email for activation instructions.' });
         }
         
         const loginpassword = await bcrypt.compare(req.body.password, Customer.password);
