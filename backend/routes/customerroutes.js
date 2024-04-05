@@ -43,46 +43,44 @@ router.post("/registered",async(req,res)=>{
     }
 })
 
-//--------------------------------------------------------------------------------------------
-
-
-
 
 //-------------------------------------------------------------------------------------------------
 
 //login
-router.post("/login",async(req,res)=>{
-    try {
-        let Customer = await getuserbyemail(req)// check controller folder to get to know about getuserbyemail
-        const token = generatetoken(Customer._id);// check controller folder to get to know about generatetoken
-        if(!Customer){
-            return res.status(400).json({error:"user not exist"})
-        }
-        
-        const loginpassword = await bcrypt.compare(req.body.password, Customer.password);
-    
-        if(!loginpassword){
-            res.status(404).json({message:"incorrect password"})
-        }
-    
-        res.json({message:"login successfully",token})
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal error' });
-    }
+router.post("/login", async (req, res) => {
+  try {
+      const Customer = await getuserbyemail(req);
+      if (!Customer) {
+          return res.status(404).json({ error: "User not found" });
+      }
 
-})
+      const isPasswordValid = await bcrypt.compare(req.body.password, Customer.password);
+      if (!isPasswordValid) {
+          return res.status(401).json({ error: "Invalid password" });
+      }
+
+      const token = generatetoken(Customer._id);
+      res.json({ message: "Login successful", token });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal error" });
+  }
+});
+
+
+
 
 //-------------------------------------------------------------------------------------------------
 //forget password
 router.post("/forgetpassword", async (req, res) => {
-    let Customer = await getuserbyemail(req);// check controller folder to get to know about getuserbyemail
-  
+  try {
+    let Customer = await getuserbyemail(req); // check controller folder to get to know about getuserbyemail
+
     if (!Customer) {
-      return res.status(400).json({ error: "User not exist" });
+      return res.status(400).json({ error: "User does not exist" });
     }
-  
-    const otp = generateOTP();// check controller folder to get to know about  generateOTP
+
+    const otp = generateOTP();
 
     var transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -112,18 +110,20 @@ router.post("/forgetpassword", async (req, res) => {
       console.log(info);
   });
   
-  
-    // Update the user's 'otp' field in the database
+
+    // Save the OTP to the user model
     Customer.otp = otp;
     await Customer.save();
-  
-    res.status(200).json({ message: "OTP generated successfully", otp });
-  });
-  
 
+    res.status(200).json({ message: "OTP generated successfully", otp });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal error" });
+  }
+});
+ 
 ///--------------------------------------------------------
 
-// verify otp
 router.post("/verifyotp", async (req, res) => {
     // Retrieve the user by email from your database
     let Customer = await getuserbyemail(req);
@@ -145,9 +145,7 @@ router.post("/verifyotp", async (req, res) => {
     }
   
     // If the OTP is valid, you can update the user's status or reset their password as needed
-  
-    // Clear the OTP in your database to prevent further use
-    Customer.otp = null; // Assuming you have an 'otp' field in your user record
+
     await Customer.save();
   
     // Respond to the client with a success message

@@ -22,7 +22,10 @@ const userschema = new mongoose.Schema({
     token: {
         type: String,
         required: true
-    }
+    },
+    otp:{
+        type:String,
+      }
 });
 
 const usermodel = mongoose.model("Verify", userschema);

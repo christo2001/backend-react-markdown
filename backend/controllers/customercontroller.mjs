@@ -8,10 +8,16 @@ import { request } from "http";
 
 //this function help us to find the email is already registered or not 
 export function getuserbyemail(request){
-    return customermodel.findOne({
-        email:request.body.email
-    })
+  try {
+      return usermodel.findOne({
+          email: request.body.email
+      });
+  } catch (error) {
+      console.error("Error in getuserbyemail:", error);
+      throw error; // Rethrow the error to be caught by the calling function
+  }
 }
+
 
 //this function generate json web token 
 export function generatetoken(id) {
@@ -62,6 +68,6 @@ export async function verifyotp(request) {
   const userEnteredOTP = request.body.otp; // Assuming the client sends OTP in the request body
 
   // Query the database for a user with the provided OTP
-  return await customermodel.findOne({ otp: userEnteredOTP });
+  return await usermodel.findOne({ otp: userEnteredOTP });
 }
 
